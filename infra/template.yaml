@@ -1,0 +1,164 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: Satellite NDVI Processing Pipeline with SaaS API
+
+Parameters:
+  ProjectName:
+    Type: String
+    Default: satellite-ndvi
+  Schedule:
+    Type: String
+    Default: "rate(7 days)"
+  ThrottleRateLimit:
+    Type: Number
+    Default: 10
+    Description: Requests per second
+  ThrottleBurstLimit:
+    Type: Number
+    Default: 20
+  QuotaLimit:
+    Type: Number
+    Default: 1000
+    Description: Requests per month per API key
+
+Globals:
+  Function:
+    Timeout: 300
+    MemorySize: 1024
+    Runtime: python3.11
+
+Resources:
+  # --- S3 Buckets ---
+  InputBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub "${ProjectName}-input-${AWS::AccountId}"
+
+  OutputBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub "${ProjectName}-output-${AWS::AccountId}"
+
+  # --- Lambda Layer ---
+  GeoLayer:
+    Type: AWS::Serverless::LayerVersion
+    Properties:
+      LayerName: !Sub "${ProjectName}-geo-layer"
+      Description: rasterio, numpy, shapely
+      ContentUri: ../src/
+      CompatibleRuntimes:
+        - python3.11
+    Metadata:
+      BuildMethod: python3.11
+
+  # --- Scheduled NDVI Processor ---
+  NdviFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "${ProjectName}-processor"
+      Handler: handler.handler
+      CodeUri: ../src/
+      Layers:
+        - !Ref GeoLayer
+      Environment:
+        Variables:
+          INPUT_BUCKET: !Ref InputBucket
+          OUTPUT_BUCKET: !Ref OutputBucket
+      Policies:
+        - S3ReadPolicy:
+            BucketName: !Ref InputBucket
+        - S3CrudPolicy:
+            BucketName: !Ref OutputBucket
+      Events:
+        WeeklyTrigger:
+          Type: Schedule
+          Properties:
+            Schedule: !Ref Schedule
+            Input: '{"tile": "36/R/UU", "date": "2024-01"}'
+
+  # --- API Gateway ---
+  NdviApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      Name: !Sub "${ProjectName}-api"
+      StageName: prod
+      Auth:
+        ApiKeyRequired: true
+
+  # --- API Lambda ---
+  ApiFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "${ProjectName}-api"
+      Handler: api_handler.api_handler
+      CodeUri: ../src/
+      Layers:
+        - !Ref GeoLayer
+      Environment:
+        Variables:
+          INPUT_BUCKET: !Ref InputBucket
+          OUTPUT_BUCKET: !Ref OutputBucket
+      Policies:
+        - S3ReadPolicy:
+            BucketName: !Ref InputBucket
+        - S3CrudPolicy:
+            BucketName: !Ref OutputBucket
+      Events:
+        ProcessNdvi:
+          Type: Api
+          Properties:
+            RestApiId: !Ref NdviApi
+            Path: /ndvi
+            Method: POST
+        HealthCheck:
+          Type: Api
+          Properties:
+            RestApiId: !Ref NdviApi
+            Path: /health
+            Method: GET
+
+  # --- API Key + Usage Plan (SaaS billing) ---
+  NdviApiKey:
+    Type: AWS::ApiGateway::ApiKey
+    DependsOn: NdviApiprodStage
+    Properties:
+      Name: !Sub "${ProjectName}-demo-key"
+      Enabled: true
+      StageKeys:
+        - RestApiId: !Ref NdviApi
+          StageName: prod
+
+  NdviUsagePlan:
+    Type: AWS::ApiGateway::UsagePlan
+    DependsOn: NdviApiprodStage
+    Properties:
+      UsagePlanName: !Sub "${ProjectName}-standard-plan"
+      Description: Standard tier - 1000 requests/month
+      ApiStages:
+        - ApiId: !Ref NdviApi
+          Stage: prod
+      Throttle:
+        RateLimit: !Ref ThrottleRateLimit
+        BurstLimit: !Ref ThrottleBurstLimit
+      Quota:
+        Limit: !Ref QuotaLimit
+        Period: MONTH
+
+  NdviUsagePlanKey:
+    Type: AWS::ApiGateway::UsagePlanKey
+    Properties:
+      KeyId: !Ref NdviApiKey
+      KeyType: API_KEY
+      UsagePlanId: !Ref NdviUsagePlan
+
+Outputs:
+  InputBucketName:
+    Value: !Ref InputBucket
+  OutputBucketName:
+    Value: !Ref OutputBucket
+  ApiEndpoint:
+    Description: NDVI API endpoint
+    Value: !Sub "https://${NdviApi}.execute-api.${AWS::Region}.amazonaws.com/prod"
+  ApiKeyId:
+    Description: API Key ID (retrieve value with aws apigateway get-api-key --api-key ID --include-value)
+    Value: !Ref NdviApiKey

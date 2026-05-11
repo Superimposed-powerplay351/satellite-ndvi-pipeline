@@ -1,0 +1,27 @@
+# macOS
+.DS_Store
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+.venv/
+venv/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+
+# AWS SAM
+.aws-sam/
+samconfig.toml
+
+# Temp files
+*.tmp
+/tmp/
+
+# QGIS
+*.qgs~

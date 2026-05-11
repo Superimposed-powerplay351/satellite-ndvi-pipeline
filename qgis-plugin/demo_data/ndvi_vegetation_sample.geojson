@@ -1,0 +1,110 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 1,
+        "ndvi_class": "vegetation",
+        "mean_ndvi": 0.5
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              115.85,
+              -31.95
+            ],
+            [
+              115.9,
+              -31.95
+            ],
+            [
+              115.9,
+              -31.9
+            ],
+            [
+              115.85,
+              -31.9
+            ],
+            [
+              115.85,
+              -31.95
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 2,
+        "ndvi_class": "vegetation",
+        "mean_ndvi": 0.6
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              115.92,
+              -31.98
+            ],
+            [
+              115.97,
+              -31.98
+            ],
+            [
+              115.97,
+              -31.93
+            ],
+            [
+              115.92,
+              -31.93
+            ],
+            [
+              115.92,
+              -31.98
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 3,
+        "ndvi_class": "vegetation",
+        "mean_ndvi": 0.7
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              115.82,
+              -31.88
+            ],
+            [
+              115.87,
+              -31.88
+            ],
+            [
+              115.87,
+              -31.86
+            ],
+            [
+              115.82,
+              -31.86
+            ],
+            [
+              115.82,
+              -31.88
+            ]
+          ]
+        ]
+      }
+    }
+  ]
+}

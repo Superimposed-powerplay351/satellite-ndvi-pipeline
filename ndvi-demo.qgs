@@ -1,0 +1,37 @@
+<!DOCTYPE qgis PUBLIC 'http://mrcc.com/qgis.dtd' 'SYSTEM'>
+<qgis projectname="Satellite NDVI Pipeline Demo" version="3.34.0">
+  <title>Satellite NDVI Pipeline Demo</title>
+  <mapcanvas>
+    <extent>
+      <xmin>115.8</xmin>
+      <ymin>-32.0</ymin>
+      <xmax>116.0</xmax>
+      <ymax>-31.85</ymax>
+    </extent>
+    <destinationsrs>
+      <spatialrefsys>
+        <authid>EPSG:4326</authid>
+      </spatialrefsys>
+    </destinationsrs>
+  </mapcanvas>
+  <projectlayers>
+    <maplayer type="raster" name="NDVI Sample">
+      <datasource>./data-sample/ndvi_sample.tif</datasource>
+      <provider>gdal</provider>
+      <srs>
+        <spatialrefsys>
+          <authid>EPSG:4326</authid>
+        </spatialrefsys>
+      </srs>
+    </maplayer>
+    <maplayer type="vector" geometry="Polygon" name="Vegetation Polygons">
+      <datasource>./data-sample/ndvi_vegetation_sample.geojson</datasource>
+      <provider>ogr</provider>
+      <srs>
+        <spatialrefsys>
+          <authid>EPSG:4326</authid>
+        </spatialrefsys>
+      </srs>
+    </maplayer>
+  </projectlayers>
+</qgis>

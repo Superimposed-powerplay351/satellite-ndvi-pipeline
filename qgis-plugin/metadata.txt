@@ -1,0 +1,16 @@
+[general]
+name=Satellite NDVI Processor
+qgisMinimumVersion=3.22
+description=Process Sentinel-2 satellite imagery: compute NDVI/NDWI/NBR, detect vegetation change, and generate alerts — all from within QGIS.
+version=1.0.0
+author=Michel M. Nzikou
+email=michel@dmnsolutions.com.au
+about=A production-ready QGIS plugin that downloads free Sentinel-2 imagery from AWS Open Data, computes vegetation/water/burn indices, performs change detection between dates, and alerts on significant environmental changes across Western Australia.
+tracker=https://github.com/DMN-SOLUTIONS/satellite-ndvi-pipeline/issues
+repository=https://github.com/DMN-SOLUTIONS/satellite-ndvi-pipeline
+tags=ndvi,ndwi,nbr,satellite,sentinel-2,remote sensing,vegetation,change detection,aws
+homepage=https://github.com/DMN-SOLUTIONS/satellite-ndvi-pipeline
+category=Raster
+icon=icon.png
+experimental=False
+deprecated=False
